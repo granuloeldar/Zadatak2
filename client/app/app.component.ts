@@ -1,7 +1,9 @@
 import {Component} from 'angular2/core';
+import {VideoUploadFormComponent} from './video-upload-form.component'
 
 @Component({
     selector: 'app-begin',
-    template: '<h1>Angular 2 app starter</h1>'
+    template: '<video-upload-form></video-upload-form>',
+    directives: [VideoUploadFormComponent]
 })
 export class AppComponent { }
