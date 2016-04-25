@@ -1,16 +1,20 @@
 import * as express from 'express';
 
-var app = express();
+const app: express.Application = express();
 
 app.use(express.static('./client'));
-app.use(express.static('./client/css'));
-app.use(express.static('./client/js'));
+app.use(express.static('./client/assets/css'));
+app.use(express.static('./client/assets/js'));
 
-app.get('/api/hello', function (request, response) { 
-    var dummy: string = '{"text": "dummy text"}';
-    response.send(JSON.parse(dummy));
+app.get('/', function (request: express.Request, response: express.Response) { 
+    response.send('/client/index.html');
 });
 
-app.listen(3000, function () {
+app.get('/api/hello', function (request: express.Request, response: express.Response) { 
+    var dummy: string = '{"text": "dummy text", "text1" : "other text"}';
+    response.send(JSON.parse(dummy).text + " " +  JSON.parse(dummy).text1);
+});
+
+app.listen(3000, () => {
     console.log('Server started at localhost:3000');
 });

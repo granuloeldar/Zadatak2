@@ -6,7 +6,8 @@
   "scripts": {
     "compile" : "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server/app.js"
+    "dev": "nodemon server/app.js",
+    "compilation": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -19,9 +20,16 @@
   },
   "homepage": "https://github.com/granuloeldar/Zadatak2#readme",
   "dependencies": {
+    "angular2": "^2.0.0-beta.15",
     "express": "^4.13.4",
     "nodemon": "^1.9.1",
     "typescript": "^1.8.10",
-    "typings": "^0.8.1"
+    "typings": "^0.8.1",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "0.35.0",
+    "rxjs": "5.0.0-beta.2",
+    "systemjs": "^0.19.26",
+    "zone.js": "0.6.10",
+    "reflect-metadata" : "0.1.2"
   }
 }

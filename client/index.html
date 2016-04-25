@@ -1,12 +1,37 @@
-<!doctype html>
 <html>
-   <head>
-      <title>
-         A Small Hello
-      </title>
-   </head>
-<body>
-   <h1>Hi</h1>
-   <p>This is very minimal "hello world" html document.</p>
-</body>
+  <head>
+    <title>Angular 2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">    
+    <link rel="stylesheet" href="assets/css/styles.css">
+
+    <!-- 1. Load libraries -->
+    <!-- IE required polyfills, in this exact order -->
+    <script src="assets/js/es6-shim.min.js"></script>
+    <script src="assets/js/system-polyfills.js"></script>
+    <script src="assets/js/shims_for_IE.js"></script>   
+
+    <script src="assets/js/angular2-polyfills.js"></script>
+    <script src="assets/js/system.src.js"></script>
+    <script src="assets/js/Rx.js"></script>
+    <script src="assets/js/angular2.dev.js"></script>
+
+    <!-- 2. Configure SystemJS -->
+    <script>
+      System.config({
+        packages: {        
+          app: {
+            format: 'register',
+            defaultExtension: 'js'
+          }
+        }
+      });
+      System.import('app/main')
+            .then(null, console.error.bind(console));
+    </script>
+  </head>
+
+  <!-- 3. Display the application -->
+  <body>
+    <app-begin>Loading...</app-begin>
+  </body>
 </html>
