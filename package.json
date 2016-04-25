@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "compile" : "tsc",
+    "compile-server": "cd server && tsc",
+    "compile-client": "cd client && tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server/app.js",
     "compilation": "tsc -w"
