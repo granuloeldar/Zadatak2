@@ -1,0 +1,27 @@
+{
+  "name": "zadatak2-angular2-file_upload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "compile" : "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/granuloeldar/Zadatak2.git"
+  },
+  "author": "Eldar Granulo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/granuloeldar/Zadatak2/issues"
+  },
+  "homepage": "https://github.com/granuloeldar/Zadatak2#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "nodemon": "^1.9.1",
+    "typescript": "^1.8.10",
+    "typings": "^0.8.1"
+  }
+}
