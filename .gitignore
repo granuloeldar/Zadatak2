@@ -34,3 +34,4 @@ node_modules
 
 # Removing .js files as it is a .ts project
 server/*.js
+server/*.js.map
