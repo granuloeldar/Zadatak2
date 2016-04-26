@@ -21,7 +21,7 @@ export class VideoUploadComponent {
 
 	  socket.on('MoreData', function(data) {
 	  	if (fileToUpload != null) {
-			this.progress = data.Percent;
+			this.progress = data.Percent.toFixed(2);
 			let place: number = data.Place * 524288,
 			    newFile: Blob = fileToUpload.slice(place, place + Math.min(524288, (fileToUpload.size - place)));
 			fileReader.readAsBinaryString(newFile);
