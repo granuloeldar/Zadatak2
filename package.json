@@ -6,7 +6,10 @@
   "scripts": {
     "compile-server": "cd server && tsc",
     "compile-client": "cd client && tsc",
+    "compile-server-watch": "cd server && tsc -w",
+    "compile-client-watch": "cd client && tsc -w",
     "compile-all": "npm run compile-server && npm run compile-client",
+    "compile-all-watch" : "npm run compile-server-watch && compile-client-watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server/app.js",
     "compilation": "tsc -w"

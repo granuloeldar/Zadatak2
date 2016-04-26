@@ -23,16 +23,19 @@ io.sockets.on('connection', function(socket) {
         console.log("Upload started...");
         let name: string = data.Name;
         let place: Number = 0;
-        console.log(data.Size);
+
         files[name] = {
             FileSize: data.Size,
             Data: "",
             Downloaded: 0.0
         };
+        console.log("Postavljam file u niz, početna veličina je: " + files[name].FileSize);
+
         try {
             fs.stat('server/temp/' + name, function(err, stats) {
                 if (err) {
                     console.log(err);
+                    console.log("Fajl ne postoji, kreiram fajl");
                 } else if (stats.isFile()) {
                     files[name].Downloaded = stats.size;
                     place = stats.size / constants.CHUNK_SIZE;
@@ -41,6 +44,7 @@ io.sockets.on('connection', function(socket) {
         } catch (err) {
             console.log(err);
         }
+
         fs.open("server/temp/" + name, "a+", '0666', function(err, fd) {
             if (err) {
                 console.log(err);
@@ -53,15 +57,15 @@ io.sockets.on('connection', function(socket) {
 
     socket.on('Upload', function(data) {
         let name: string = data.Name;
-        let Place: Number = files[name].Downloaded / constants.CHUNK_SIZE;
-        let Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
         files[name].Downloaded += data.Data.length;
         files[name].Data += data.Data;
+        let Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
+            Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
         if (files[name].Downloaded === files[name].FileSize) {
             console.log("File succesfully uploaded!");
             fs.write(files[name].Handler, files[name].Data, null, 'binary', function() {
                 // premještamo file i uklanjamo stari iz temp direktorija
-                let inputStream = fs.createReadStream('server/temp/' + name),
+                let inputStream  = fs.createReadStream('server/temp/' + name),
                     outputStream = fs.createWriteStream('server/files/' + name);
                 inputStream.pipe(outputStream);
                 inputStream.on('end', function() {

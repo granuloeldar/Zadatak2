@@ -1,9 +1,9 @@
 import {Component} from 'angular2/core';
 import {NgForm}    from 'angular2/common';
 
-let fileToUpload: File = null;
-let fileReader = null;
-let socket = null;
+let fileToUpload: File = null,
+    fileReader = null,
+    socket = null;
 
 @Component({
   selector: 'video-upload',
@@ -12,6 +12,7 @@ let socket = null;
 export class VideoUploadComponent {
 
   progress: Number = 0.0;
+  percent: number = 0.0;
   fileName: string = "";
   uploadStarted: boolean = false;
 
@@ -21,10 +22,9 @@ export class VideoUploadComponent {
 	  socket.on('MoreData', function(data) {
 	  	if (fileToUpload != null) {
 			this.progress = data.Percent;
-			let place: number = data.Place * 524288; //The Next Blocks Starting Position
-			let newFile: Blob = fileToUpload.slice(place, place + Math.min(524288, (fileToUpload.size - place)));
+			let place: number = data.Place * 524288,
+			    newFile: Blob = fileToUpload.slice(place, place + Math.min(524288, (fileToUpload.size - place)));
 			fileReader.readAsBinaryString(newFile);
-			console.log("Novi file: " + newFile);
 	  	}  
 	  });
 
@@ -38,7 +38,6 @@ export class VideoUploadComponent {
   startUpload() {
      if (fileToUpload != null) {
          fileReader = new FileReader();
-		 console.log("Ime fajla je: " + this.fileName);
 		 this.fileName = fileToUpload.name;
 		 fileReader.onload = function(event) {
 			 socket.emit('Upload', { Name: fileToUpload.name, Data: event.target.result });
@@ -57,7 +56,7 @@ export class VideoUploadComponent {
 
   calculateFileSize() {
   	if (fileToUpload != null) {
-		return fileToUpload.size / 1048576;
+		return Math.round(((this.percent/100.0) * fileToUpload.size) / 1048576);
   	}
 	return 0;
   }
