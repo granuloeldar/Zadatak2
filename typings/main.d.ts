@@ -5,3 +5,5 @@
 /// <reference path="main/ambient/mime/index.d.ts" />
 /// <reference path="main/ambient/node/index.d.ts" />
 /// <reference path="main/ambient/serve-static/index.d.ts" />
+/// <reference path="main/ambient/socket.io-client/index.d.ts" />
+/// <reference path="main/ambient/socket.io/index.d.ts" />

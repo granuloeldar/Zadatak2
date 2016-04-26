@@ -1,0 +1,20 @@
+<div class="container">
+	<div class="row">
+		<div id="UploadBox" class="form-group">
+		    <h2>Node.js file uploader</h2>
+		    <span id="UploadArea">
+		        <div [hidden]="uploadStarted">
+			        <label for="FileBox">Choose a file: </label><input type="file" class="form-control" (change)="onFileChosen($event)" id="FileBox">
+			        <label for="NameBox">Name: </label><input type="text" [(ngModel)]="fileName" class="form-control" id="NameBox"><br>
+			        <div class="text-center">
+			        	<button  type="button" id="UploadButton" (click)="startUpload()" class="btn btn-info">Upload</button>
+			        </div>
+		        </div>
+		        <div [hidden]="!uploadStarted">
+			        <div id="ProgressContainer"><div id="ProgressBar"></div></div><span id="percent">{{ progress }}</span>
+			        <span id='Uploaded'>Uploaded: {{ calculateFileSize() }} MB</span>  
+		        </div>
+		    </span>
+		</div>
+	</div>
+</div>
