@@ -37,6 +37,8 @@ client/app/*.js
 client/app/*.js.map
 server/*.js
 server/*.js.map
+server/model/*.js
+server/model/*.js.map
 
 # Removing typings
 typings
