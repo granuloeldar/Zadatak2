@@ -12,22 +12,24 @@ let fileToUpload: File = null,
 })
 export class VideoUploadComponent {
 
-  socket: SocketIOClient.Socket;
+  socketService: SocketService;
   progress: number = 0.0;
   percent: number = 0.0;
+  progressInMB: number = 0.0;
   fileName: string = "";
   uploadStarted: boolean = false;
 
-  constructor(private socketService: SocketService) {
-	  socketService.setCallbacks(this.onMoreData, this.onDone);
+  constructor(private _socketService: SocketService) {
+	  this.socketService = _socketService;
+	  this.socketService.setCallbacks(this.onMoreData.bind(this), this.onDone.bind(this));
   }
 
   startUpload() {
      if (fileToUpload != null) {
          fileReader = new FileReader();
 		 this.fileName = fileToUpload.name;
-		 fileReader.onload = this.onFileReaderLoad;
-		 this.socket.emit('Start', { Name: this.fileName, Size: fileToUpload.size });
+		 fileReader.onload = this.onFileReaderLoad.bind(this);
+		 this.socketService.emit('Start', { Name: this.fileName, Size: fileToUpload.size });
 		 this.uploadStarted = true;
      } else {
 		 alert('You have to choose a file!');
@@ -47,6 +49,9 @@ export class VideoUploadComponent {
 
   onMoreData(data) {
 	  if (fileToUpload != null) {
+		  this.progress = data.Percent;
+		  this.percent = (Math.round(data.Percent * 100) / 100);
+		  this.progressInMB = Math.round(((this.percent / 100.0) * fileToUpload.size) / 1048576);
 		  let place: number = data.Place * 524288,
 			  newFile: Blob = fileToUpload.slice(place, place + Math.min(524288, (fileToUpload.size - place)));
 		  fileReader.readAsBinaryString(newFile);
@@ -54,14 +59,7 @@ export class VideoUploadComponent {
   }
 
   onFileReaderLoad(event) {
-	  this.socket.emit('Upload', { Name: fileToUpload.name, Data: event.target.result });
-  }
-
-  calculateFileSize() {
-  	if (fileToUpload != null) {
-		return Math.round(((this.percent/100.0) * fileToUpload.size) / 1048576);
-  	}
-	return 0;
+	  this.socketService.emit('Upload', { Name: fileToUpload.name, Data: event.target.result });
   }
 
 }
