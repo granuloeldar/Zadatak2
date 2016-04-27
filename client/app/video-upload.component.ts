@@ -11,7 +11,7 @@ let fileToUpload: File = null,
 })
 export class VideoUploadComponent {
 
-  progress: Number = 0.0;
+  progress: number = 0.0;
   percent: number = 0.0;
   fileName: string = "";
   uploadStarted: boolean = false;
@@ -49,8 +49,8 @@ export class VideoUploadComponent {
      }
   }
 
-  onFileChosen(event) {
-     fileToUpload = event.target.files[0];
+  onFileChosen(file) {
+	 fileToUpload = file.files[0];
      this.fileName = fileToUpload.name;
   }
 
