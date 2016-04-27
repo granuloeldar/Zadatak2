@@ -4,12 +4,17 @@
 		    <h2>Node.js file uploader</h2>
 		    <span id="UploadArea">
 		        <div [hidden]="uploadStarted">
+<<<<<<< HEAD
 			        <label for="FileBox">Choose a file: </label><input type="file" #file class="form-control" (change)="onFileChosen(file)" id="FileBox">
+=======
+			        <label for="FileBox">Choose a file: </label><input type="file" #file class="form-control" (change)="onFileChosen($event)" id="FileBox">
+>>>>>>> e4b80fb37d5646a825e37b57f66a9a993cb137d1
 			        <label for="NameBox">Name: </label><input type="text" [(ngModel)]="fileName" class="form-control" id="NameBox"><br>
 			        <div class="text-center">
 			        	<button  type="button" id="UploadButton" (click)="startUpload()" class="btn btn-info">Upload</button>
 			        </div>
 		        </div>
+				{{progress}}
 		        <div [hidden]="!uploadStarted">
 			        <div id="ProgressContainer"><div id="ProgressBar">{{progress}}</div></div><span id="percent">{{percent}} %</span>
 			        <span id='Uploaded'>Uploaded: {{calculateFileSize()}} MB</span>  
