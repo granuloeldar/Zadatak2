@@ -1,6 +1,6 @@
 import {Component} from 'angular2/core';
 import {NgForm, CORE_DIRECTIVES}    from 'angular2/common';
-import {SocketService} from './services/SocketService';
+import {SocketService, ISocketData} from './services/SocketService';
 import {Progress} from './custom_components/progress.directive';
 import {Bar} from './custom_components/bar.component';
 import {Progressbar} from './custom_components/progressbar.component';
@@ -25,7 +25,32 @@ export class FileUploadComponent {
 
   constructor(private _socketService: SocketService) {
 	  this.socketService = _socketService;
-	  this.socketService.setCallbacks(this.onMoreData.bind(this), this.onDone.bind(this));
+
+      _socketService
+          .progress("MoreData")
+          .subscribe((data: ISocketData) => {
+
+              if (fileToUpload != null) {
+
+                  this.progress = data.Percent;
+                  this.percent = (Math.round(data.Percent * 100) / 100);
+                  this.progressInMB = Math.round(((this.percent / 100.0) * fileToUpload.size) / 1048576);
+                  let place: number = data.Place * 524288,
+                      newFile: Blob = fileToUpload.slice(place, place + Math.min(524288, (fileToUpload.size - place)));
+                  fileReader.readAsBinaryString(newFile);
+              }
+
+          });
+
+      _socketService
+          .progress("Done")
+          .subscribe(() => {
+
+              this.progress = 100;
+              alert('File successfully uploaded!');
+              this.uploadStarted = false;
+
+          });
   }
 
   startUpload() {
@@ -43,23 +68,6 @@ export class FileUploadComponent {
   onFileChosen(fileInput) {
 	 fileToUpload = fileInput.files[0];
      this.fileName = fileToUpload.name;
-  }
-
-  onDone(data) {
-	  this.progress = 100;
-	  alert('File successfully uploaded!');
-	  this.uploadStarted = false;
-  }
-
-  onMoreData(data) {
-	  if (fileToUpload != null) {
-		  this.progress = data.Percent;
-		  this.percent = (Math.round(data.Percent * 100) / 100);
-		  this.progressInMB = Math.round(((this.percent / 100.0) * fileToUpload.size) / 1048576);
-		  let place: number = data.Place * 524288,
-			  newFile: Blob = fileToUpload.slice(place, place + Math.min(524288, (fileToUpload.size - place)));
-		  fileReader.readAsBinaryString(newFile);
-	  } 
   }
 
   onFileReaderLoad(event) {
