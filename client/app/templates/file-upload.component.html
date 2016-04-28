@@ -11,6 +11,7 @@
 			        </div>
 		        </div>
 		        <div [hidden]="!uploadStarted">
+		        <progressbar [animate]="true" [value]="percent" [type]="type"><b>{{percent}}%</b></progressbar>
 			        <div id="ProgressContainer"><div id="ProgressBar">{{progress}}</div></div><span id="percent">{{percent}} %</span>
 			        <span id='Uploaded'>Uploaded: {{progressInMB}} MB</span>  
 		        </div>

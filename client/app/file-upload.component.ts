@@ -1,16 +1,20 @@
 import {Component} from 'angular2/core';
-import {NgForm}    from 'angular2/common';
+import {NgForm, CORE_DIRECTIVES}    from 'angular2/common';
 import {SocketService} from './services/SocketService';
+import {Progress} from './custom_components/progress.directive';
+import {Bar} from './custom_components/bar.component';
+import {Progressbar} from './custom_components/progressbar.component';
 
 let fileToUpload: File = null,
     fileReader = null;
 
 @Component({
-	selector: 'video-upload',
-  	templateUrl: 'app/templates/video-upload.component.html',
-  	providers: [SocketService]
+	selector: 'file-upload',
+  	templateUrl: 'app/templates/file-upload.component.html',
+  	providers: [SocketService],
+    directives: [Progress, Bar, Progressbar, CORE_DIRECTIVES]
 })
-export class VideoUploadComponent {
+export class FileUploadComponent {
 
   socketService: SocketService;
   progress: number = 0.0;

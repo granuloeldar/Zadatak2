@@ -1,9 +1,9 @@
 import {Component} from 'angular2/core';
-import {VideoUploadComponent} from './video-upload.component'
+import {FileUploadComponent} from './file-upload.component'
 
 @Component({
     selector: 'app-begin',
-    template: '<video-upload></video-upload>',
-    directives: [VideoUploadComponent]
+    template: '<file-upload></file-upload>',
+    directives: [FileUploadComponent]
 })
 export class AppComponent { }
