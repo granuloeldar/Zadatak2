@@ -42,6 +42,8 @@ client/app/services/*.js
 client/app/services/*.js.map
 client/app/model/*.js
 client/app/model/*.js.map
+client/app/pipes/*.js
+client/app/pipes/*.js.map
 server/*.js
 server/*.js.map
 server/model/*.js

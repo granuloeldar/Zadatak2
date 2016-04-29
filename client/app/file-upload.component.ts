@@ -9,8 +9,6 @@ import {Progressbar} from './custom_components/progressbar.component';
 import {CHUNK_SIZE} from './constants';
 import {DictionaryToArrayPipe} from './pipes/DictionaryToArrayPipe';
 
-
-
 /**
  * Component that handles file upload via socket.io,
  * displays and tracks progress of the upload
@@ -47,11 +45,11 @@ export class FileUploadComponent {
       .progress("Done")
       .subscribe((data: ISocketData) => {
         if (this.files != null && Object.keys(this.files).length > 0 && this.files[data.Name]) {
-          this.files[data.Name].Progress = 101;
+          this.files[data.Name].Progress = 100;
           delete this.files[data.Name];
           if (Object.keys(this.files).length == 0) {
-             alert('File successfully uploaded!');
-             this.uploadStarted = false;
+            alert('File successfully uploaded!');
+            this.uploadStarted = false;
           }
         }
       });
@@ -77,7 +75,7 @@ export class FileUploadComponent {
   onFileChosen(fileInput) {
     const fileList: FileList = fileInput.files;
     for (let i: number = 0; i < fileList.length; i++) {
-        this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
+      this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
     }
   }
 

@@ -7,7 +7,7 @@ import { FileDescription } from './model/FileDescription';
 const app: express.Application = express();
 
 const server = require('http').Server(app);
-const io : SocketIO.Server = socketIO.listen(server);
+const io: SocketIO.Server = socketIO.listen(server);
 const constants = require('./constants');
 
 app.use(express.static('./client'));
@@ -72,7 +72,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
         files[name].Downloaded += data.Data.length;
         files[name].Data += data.Data;
         const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
-              Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
+            Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
         if (files[name].Downloaded === files[name].FileSize) {
             // The entire file has been sent, write it and copy it to server/files directory
             fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
