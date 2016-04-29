@@ -1,14 +1,7 @@
-import {Injectable} from 'angular2/core';
+import {Injectable} from "angular2/core";
 import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
-
-/**
- * Interface describing the data sent back by the server
- */
-export interface ISocketData {
-    Percent: number;
-    Place: number;
-}
+import {ISocketData} from "../model/ISocketData";
 
 /**
  * An injectable service wrapped in observable that handles socket.io connections

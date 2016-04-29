@@ -40,6 +40,8 @@ client/app/custom_components/*.js
 client/app/custom_components/*.js.map
 client/app/services/*.js
 client/app/services/*.js.map
+client/app/model/*.js
+client/app/model/*.js.map
 server/*.js
 server/*.js.map
 server/model/*.js

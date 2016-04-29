@@ -57,7 +57,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                 console.log(err);
             } else {
                 files[name].Handler = fd;
-                socket.emit('MoreData', { Place: place, Percent: 0 });
+                socket.emit('MoreData', { Place: place, Percent: 0, Name: name });
             }
         });
     });
@@ -99,11 +99,11 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
             fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
                 files[name].Data = "";
                 // Request a new chunk of data
-                socket.emit('MoreData', { Place: Place, Percent: Percent });
+                socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
             });
         } else {
             // Buffer limit not reached, request new chunk of data
-            socket.emit('MoreData', { Place: Place, Percent: Percent });
+            socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
         }
     });
 });
