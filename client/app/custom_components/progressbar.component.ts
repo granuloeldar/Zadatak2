@@ -5,9 +5,9 @@ import {Progress} from './progress.directive';
 import {Bar} from './bar.component';
 
 @Component({
-    selector: 'progressbar, [progressbar]',
-    directives: [Progress, Bar],
-    template: `
+  selector: 'progressbar, [progressbar]',
+  directives: [Progress, Bar],
+  template: `
     <div progress [animate]="animate" [max]="max">
       <bar [type]="type" [value]="value">
           <ng-content></ng-content>
@@ -16,8 +16,8 @@ import {Bar} from './bar.component';
   `
 })
 export class Progressbar {
-    @Input() private animate:boolean;
-    @Input() private max:number;
-    @Input() private type:string;
-    @Input() private value:number;
+  @Input() private animate: boolean;
+  @Input() private max: number;
+  @Input() private type: string;
+  @Input() private value: number;
 }

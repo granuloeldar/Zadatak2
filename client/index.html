@@ -1,37 +1,35 @@
 <html>
   <head>
     <title>Angular 2</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
     <!-- 1. Load libraries -->
     <!-- IE required polyfills, in this exact order -->
     <script src="assets/js/es6-shim.min.js"></script>
     <script src="assets/js/system-polyfills.js"></script>
-    <script src="assets/js/shims_for_IE.js"></script>   
+    <script src="assets/js/shims_for_IE.js"></script>
     <script src="assets/js/angular2-polyfills.js"></script>
     <script src="assets/js/system.src.js"></script>
     <script src="assets/js/Rx.js"></script>
     <script src="assets/js/angular2.dev.js"></script>
     <script src="assets/js/socket.io.js"></script>
-
     <!-- 2. Configure SystemJS -->
     <script>
-      System.config({
-        packages: {        
-          app: {
-            format: 'register',
-            defaultExtension: 'js'
-          }
-        }
-      });
-      System.import('app/main')
-            .then(null, console.error.bind(console));
+    System.config({
+    packages: {
+    app: {
+    format: 'register',
+    defaultExtension: 'js'
+    }
+    }
+    });
+    System.import('app/main')
+    .then(null, console.error.bind(console));
     </script>
   </head>
-
   <!-- 3. Display the application -->
   <body>
-    <app-begin></app-begin>
-  </body>
+  <app-begin></app-begin>
+</body>
 </html>

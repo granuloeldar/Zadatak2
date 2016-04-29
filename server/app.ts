@@ -7,35 +7,38 @@ import { FileDescription } from './model/FileDescription';
 const app: express.Application = express();
 
 const server = require('http').Server(app);
-const io = socketIO.listen(server);
+const io : SocketIO.Server = socketIO.listen(server);
 const constants = require('./constants');
 
 app.use(express.static('./client'));
 app.use(express.static('./client/assets/css'));
 app.use(express.static('./client/assets/js'));
 
-let files: { [id: string]: FileDescription; } = {};
+const files: { [id: string]: FileDescription; } = {};
 
 // Socket.io
 
-io.sockets.on('connection', function(socket) {
-    socket.on('Start', function(data) {
+io.sockets.on('connection', (socket: SocketIO.Socket) => {
+    socket.on('Start', (data) => {
         console.log("Upload started...");
-        let name: string = data.Name;
-        let place: Number = 0;
+        const name: string = data.Name;
+        let place: number = 0;
 
         files[name] = {
             FileSize: data.Size,
             Data: "",
             Downloaded: 0.0
         };
-        console.log("Postavljam file u niz, početna veličina je: " + files[name].FileSize);
 
+        /**
+         * Checking whether a file already exists with the name,
+         * loading its' size and progress if it does, else creating a new file
+         */
         try {
-            fs.stat('server/temp/' + name, function(err, stats) {
+            fs.stat('server/temp/' + name, (err: Error, stats: fs.Stats) => {
                 if (err) {
                     console.log(err);
-                    console.log("Fajl ne postoji, kreiram fajl");
+                    console.log("File does not exist, creating file");
                 } else if (stats.isFile()) {
                     files[name].Downloaded = stats.size;
                     place = stats.size / constants.CHUNK_SIZE;
@@ -45,7 +48,11 @@ io.sockets.on('connection', function(socket) {
             console.log(err);
         }
 
-        fs.open("server/temp/" + name, "a+", '0666', function(err, fd) {
+        /**
+         * Opening a file in append + create mode(a+) with read/write access
+         * and storing the file descriptor for further use
+         */
+        fs.open("server/temp/" + name, "a+", '0666', (err: Error, fd: number) => {
             if (err) {
                 console.log(err);
             } else {
@@ -55,22 +62,28 @@ io.sockets.on('connection', function(socket) {
         });
     });
 
-    socket.on('Upload', function(data) {
-        let name: string = data.Name;
+    /**
+     * Handling the socket.io upload event, receives the data(file) in binary string
+     * format from the client, determines the progress and checks whether the upload is 
+     * finished
+     */
+    socket.on('Upload', (data) => {
+        const name: string = data.Name;
         files[name].Downloaded += data.Data.length;
         files[name].Data += data.Data;
-        let Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
-            Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
+        const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
+              Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
         if (files[name].Downloaded === files[name].FileSize) {
-            console.log("File succesfully uploaded!");
-            fs.write(files[name].Handler, files[name].Data, null, 'binary', function() {
-                // premještamo file i uklanjamo stari iz temp direktorija
-                let inputStream  = fs.createReadStream('server/temp/' + name),
-                    outputStream = fs.createWriteStream('server/files/' + name);
+            // The entire file has been sent, write it and copy it to server/files directory
+            fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
+                const inputStream: fs.ReadStream = fs.createReadStream('server/temp/' + name),
+                    outputStream: fs.WriteStream = fs.createWriteStream('server/files/' + name);
                 inputStream.pipe(outputStream);
-                inputStream.on('end', function() {
-                    fs.close(files[name].Handler, function() {
-                        fs.unlink('server/temp/' + name, function(err) {
+
+                // Upon closing of input stream, close and unlink the temporary file
+                inputStream.on('end', () => {
+                    fs.close(files[name].Handler, () => {
+                        fs.unlink('server/temp/' + name, (err: Error) => {
                             if (err) {
                                 throw err;
                             }
@@ -78,22 +91,26 @@ io.sockets.on('connection', function(socket) {
                         });
                     });
                 });
+                // Emit a done event to alert the user 
                 socket.emit('Done', { Path: 'server/files/' + name });
             });
         } else if (files[name].Data.length > constants.BUFFER_LIMIT) {
-            fs.write(files[name].Handler, files[name].Data, null, 'binary', function() {
+            // The buffer limit has been reached, data should be written to file
+            fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
                 files[name].Data = "";
+                // Request a new chunk of data
                 socket.emit('MoreData', { Place: Place, Percent: Percent });
             });
         } else {
+            // Buffer limit not reached, request new chunk of data
             socket.emit('MoreData', { Place: Place, Percent: Percent });
         }
     });
 });
 
-app.get('/api/hello', function (request: express.Request, response: express.Response) { 
+app.get('/api/hello', function(request: express.Request, response: express.Response) {
     let dummy: string = '{"text": "dummy text", "text1" : "other text"}';
-    response.send(JSON.parse(dummy).text + " " +  JSON.parse(dummy).text1);
+    response.send(JSON.parse(dummy).text + " " + JSON.parse(dummy).text1);
 });
 
 server.listen(3000, () => {

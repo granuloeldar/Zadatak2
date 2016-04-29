@@ -2,10 +2,18 @@ import {Injectable} from 'angular2/core';
 import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
 
+/**
+ * Interface describing the data sent back by the server
+ */
 export interface ISocketData {
     Percent: number;
     Place: number;
 }
+
+/**
+ * An injectable service wrapped in observable that handles socket.io connections
+ * and callbacks
+ */
 @Injectable()
 export class SocketService {
     socket: SocketIOClient.Socket;
@@ -14,8 +22,8 @@ export class SocketService {
         this.socket = io.connect("localhost:3000");
     }
 
-    public setCallbacks(onMoreData, onDone) {
-		this.socket.on('MoreData', onMoreData);
+    public setCallbacks(onMoreData: Function, onDone: Function) {
+        this.socket.on('MoreData', onMoreData);
         this.socket.on('Done', onDone);
     }
 
@@ -37,7 +45,7 @@ export class SocketService {
     }
 
     public emit(event: string, data) {
-		this.socket.emit(event, data);
+        this.socket.emit(event, data);
     }
 
     public getSocket(): SocketIOClient.Socket {
