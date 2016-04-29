@@ -78,8 +78,8 @@ export class FileUploadComponent {
    * Callback executed when the filereader loads a new file
    * @param {[type]} event contains file data that is sent to server
    */
-  onFileReaderLoad(event) {
-     this.socketService.emit('Upload', { Name: this.fileToUpload.name, Data: event.target.result });
+  onFileReaderLoad(event: ProgressEvent) {
+     this.socketService.emit('Upload', { Name: this.fileToUpload.name, Data: (event.target as FileReader).result });
   }
 
 }
