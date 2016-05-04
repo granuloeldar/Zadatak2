@@ -24,13 +24,16 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
         console.log("Upload started...");
         const name: string = data.Name;
         let place: number = 0;
+        let percent: number = 0;
 
-        files[name] = {
-            FileSize: data.Size,
-            Data: "",
-            Downloaded: 0.0
-        };
-
+        if (!data.Restart) {
+            files[name] = {
+                FileSize: data.Size,
+                Data: "",
+                Downloaded: 0.0,
+                Paused: false
+            };
+        }
         /**
          * Checking whether a file already exists with the name,
          * loading its' size and progress if it does, else creating a new file
@@ -43,6 +46,8 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                 } else if (stats.isFile()) {
                     files[name].Downloaded = stats.size;
                     place = stats.size / constants.CHUNK_SIZE;
+                    percent = (files[name].Downloaded / files[name].FileSize) * 100;
+                    files[name].Paused = false;
                 }
             });
         } catch (err) {
@@ -58,7 +63,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                 console.log(err);
             } else {
                 files[name].Handler = fd;
-                socket.emit('MoreData', { Place: place, Percent: 0, Name: name });
+                socket.emit('MoreData', { Place: place, Percent: percent, Name: name });
             }
         });
     });
@@ -74,6 +79,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
         files[name].Data += data.Data;
         const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
             Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
+        if (files[name].Paused) return;
         if (files[name].Downloaded === files[name].FileSize) {
             // The entire file has been sent, write it and copy it to server/files directory
             fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
@@ -108,6 +114,25 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
             socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
         }
     });
+
+    socket.on('Pause', (data) => {
+        files[data.Name].Paused = true;
+        fs.write(files[data.Name].Handler, files[data.Name].Data, null, 'binary', () => {
+            files[data.Name].Data = "";
+        });
+    });
+
+    socket.on('Cancel', (data) => {
+        fs.unlink('server/temp/' + data.Name, (err: Error) => {
+            if (err) {
+                throw err;
+            }
+            console.log('File deleted due to cancel!');
+            // Emit a done event to alert the user 
+            socket.emit('Cancelled', { Name: data.Name });
+        });
+    });
+
 });
 
 app.get('/api/hello', function(request: express.Request, response: express.Response) {

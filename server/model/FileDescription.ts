@@ -9,8 +9,9 @@
  * Handler file descriptor to access the file throughout the upload
  */
 export interface FileDescription {
-    FileSize: number
-    Data: string
-    Downloaded: number
-    Handler?: number
+    FileSize: number;
+    Data: string;
+    Downloaded: number;
+    Handler?: number;
+    Paused: boolean;
 }

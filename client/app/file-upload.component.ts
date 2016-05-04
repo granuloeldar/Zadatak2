@@ -25,7 +25,7 @@ export class FileUploadComponent {
   files: { [id: string]: IFileData } = {};
   uploadStarted: boolean = false;
   statusMessage: string = "";
-  @ViewChild('fileInput') fileInputElement; 
+  @ViewChild('fileInput') fileInputElement;
 
   constructor(private socketService: SocketService) {
 
@@ -36,9 +36,11 @@ export class FileUploadComponent {
         const fileData: IFileData = this.files[index];
         if (Object.keys(this.files).length > 0 && this.files != null && this.files[index]) {
           this.files[index].Progress = data.Percent;
-          const place: number = data.Place * CHUNK_SIZE,
-            newFile: Blob = fileData.File.slice(place, place + Math.min(CHUNK_SIZE, (fileData.File.size - place)));
-          this.files[index].FileReader.readAsBinaryString(newFile);
+          if (!this.files[index].Paused) {
+            const place: number = data.Place * CHUNK_SIZE,
+              newFile: Blob = fileData.File.slice(place, place + Math.min(CHUNK_SIZE, (fileData.File.size - place)));
+            this.files[index].FileReader.readAsBinaryString(newFile);
+          }
         }
 
       });
@@ -49,7 +51,7 @@ export class FileUploadComponent {
         if (this.files != null && Object.keys(this.files).length > 0 && this.files[data.Name]) {
           this.files[data.Name].Progress = 100;
           let completeCount: number = 0;
-          for(const item in this.files){
+          for (const item in this.files) {
             if (this.files[item].Progress == 100) completeCount++;
           }
           if (completeCount == Object.keys(this.files).length) {
@@ -58,13 +60,23 @@ export class FileUploadComponent {
           }
         }
       });
+
+    socketService
+      .progress("Cancelled")
+      .subscribe((data) => {
+        delete this.files[data.Name];
+        if (Object.keys(this.files).length == 0) {
+          this.statusMessage = "Upload some other files?";
+          this.files = {};
+        }
+      });
   }
 
   startUpload() {
     if (Object.keys(this.files).length > 0 && this.files != null) {
       // starting upload for every file selected by user
       for (const key in this.files) {
-        this.socketService.emit('Start', { Name: this.files[key].File.name, Size: this.files[key].File.size });
+        this.socketService.emit('Start', { Name: this.files[key].File.name, Size: this.files[key].File.size, Restart: false });
       }
       this.uploadStarted = true;
     } else {
@@ -84,10 +96,24 @@ export class FileUploadComponent {
     }
   }
 
-  resetForm(){
+  resetForm() {
     this.statusMessage = "";
     this.uploadStarted = false;
     this.fileInputElement.nativeElement.value = "";
+  }
+
+  pause(fileName: string) {
+    this.files[fileName].Paused = true;
+    this.socketService.emit('Pause', { Name: fileName });
+  }
+
+  restart(fileName: string) {
+    this.files[fileName].Paused = false;
+    this.socketService.emit('Start', { Name: fileName, Size: this.files[fileName].File.size });
+  }
+
+  cancel(fileName: string) {
+    this.socketService.emit('Cancel', { Name: fileName });
   }
 
 }

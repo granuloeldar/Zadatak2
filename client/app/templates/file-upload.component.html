@@ -8,8 +8,6 @@
 				</div>
 				<h2 [hidden]='uploadStarted'> Files to upload</h2>
 				<ul style="list-style-type:none">
-					<!-- #file is deprecated in new angular beta 17, let file of files is recommended, but is it throwing errors
-					in browsers -->
 					<li *ngFor="let file of files | values">
 						<div class="row">
 							<p>File name: {{file.File.name}}</p>
@@ -27,11 +25,16 @@
 									</span>
 								</div>
 							</div>
+							<div style="display:inline-block;">
+								<button  type="button" [style.display]="(file.Paused || !uploadStarted)?'none':'inherit'" (click)="pause(file.File.name)" class="btn btn-info">Pause upload</button>
+								<button  type="button" [style.display]="file.Paused?'inherit':'none'" (click)="restart(file.File.name)" class="btn btn-info">Continue upload</button>
+								<button  type="button" [style.display]="uploadStarted?'inherit':'none'" (click)="cancel(file.File.name)" class="btn btn-danger">Cancel upload</button>
+							</div>
 						</div>
 					</li>
 				</ul>
 				<div class="row text-center">
-				    <p class="success-text">{{statusMessage}}</p>
+					<p class="success-text">{{statusMessage}}</p>
 				</div>
 				<div class="row">
 					<div class="text-center" [hidden]='statusMessage == ""'>
