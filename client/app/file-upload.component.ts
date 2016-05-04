@@ -1,5 +1,5 @@
-import {Component} from 'angular2/core';
-import {NgForm, CORE_DIRECTIVES}    from 'angular2/common';
+import {Component} from '@angular/core';
+import {NgForm, CORE_DIRECTIVES}    from '@angular/common';
 import {SocketService} from './services/SocketService';
 import {ISocketData} from './model/ISocketData';
 import {IFileData} from './model/IFileData';

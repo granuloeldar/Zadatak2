@@ -12,8 +12,7 @@
     "compile-all-watch" : "npm run compile-server-watch && compile-client-watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server/app.js",
-    "compilation": "tsc -w",
-    "postinstall": "typings install && npm run compile-all"
+    "compilation": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -26,17 +25,27 @@
   },
   "homepage": "https://github.com/granuloeldar/Zadatak2#readme",
   "dependencies": {
-    "angular2": "^2.0.0-beta.17",
+  	"@angular/common":  "2.0.0-rc.1",
+    "@angular/compiler":  "2.0.0-rc.1",
+    "@angular/core":  "2.0.0-rc.1",
+    "@angular/http":  "2.0.0-rc.1",
+    "@angular/platform-browser":  "2.0.0-rc.1",
+    "@angular/platform-browser-dynamic":  "2.0.0-rc.1",
+    "@angular/router":  "2.0.0-rc.1",
+    "@angular/router-deprecated":  "2.0.0-rc.1",
+    "@angular/upgrade":  "2.0.0-rc.1",
+    "systemjs": "0.19.27",
+    "es6-shim": "^0.35.0",
+    "reflect-metadata": "0.1.3",
+    "rxjs": "5.0.0-beta.6",
+    "zone.js": "^0.6.12",
+    "angular2-in-memory-web-api": "0.0.7",
+    "bootstrap": "^3.3.6",
     "express": "^4.13.4",
     "nodemon": "^1.9.1",
     "typescript": "^1.8.10",
     "typings": "^0.8.1",
     "es6-promise": "^3.0.2",
-    "es6-shim": "0.35.0",
-    "rxjs": "5.0.0-beta.6",
-    "systemjs": "^0.19.26",
-    "zone.js": "^0.6.12",
-    "reflect-metadata" : "0.1.2",
     "socket.io": "^1.4.5"
   }
 }

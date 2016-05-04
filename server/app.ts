@@ -13,6 +13,7 @@ const constants = require('./constants');
 app.use(express.static('./client'));
 app.use(express.static('./client/assets/css'));
 app.use(express.static('./client/assets/js'));
+app.use('/modules', express.static('./node_modules'));
 
 const files: { [id: string]: FileDescription; } = {};
 
