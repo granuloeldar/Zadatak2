@@ -6,11 +6,11 @@
 				<div [hidden]="uploadStarted">
 					<label for="file_box">Choose a file: </label><input type="file" #fileInput class="form-control" (change)="onFileChosen(fileInput)" id="file_box" multiple>
 				</div>
-				<h2>Files to upload</h2>
+				<h2 [hidden]='uploadStarted'> Files to upload</h2>
 				<ul style="list-style-type:none">
 					<!-- #file is deprecated in new angular beta 17, let file of files is recommended, but is it throwing errors
 					in browsers -->
-					<li *ngFor="#file of files | values">
+					<li *ngFor="let file of files | values">
 						<div class="row">
 							<p>File name: {{file.File.name}}</p>
 							<div [hidden]="!uploadStarted">
@@ -30,8 +30,16 @@
 						</div>
 					</li>
 				</ul>
-				<div class="text-center">
-					<button  type="button" id="upload_button" (click)="startUpload()" class="btn btn-info">Upload files</button>
+				<div class="row text-center">
+				    <p class="success-text">{{statusMessage}}</p>
+				</div>
+				<div class="row">
+					<div class="text-center" [hidden]='statusMessage == ""'>
+						<button  type="button" id="reset_form_button" (click)="resetForm()" class="btn btn-success">Upload new files</button>
+					</div>
+					<div class="text-center" [hidden]='statusMessage != ""'>
+						<button  type="button" id="upload_button" (click)="startUpload()" class="btn btn-info">Upload files</button>
+					</div>
 				</div>
 			</span>
 		</div>

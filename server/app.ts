@@ -89,11 +89,12 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                                 throw err;
                             }
                             console.log('File deleted!');
+                            // Emit a done event to alert the user 
+                            socket.emit('Done', { Path: 'server/files/' + name, Name: name });
                         });
                     });
                 });
-                // Emit a done event to alert the user 
-                socket.emit('Done', { Path: 'server/files/' + name });
+
             });
         } else if (files[name].Data.length > constants.BUFFER_LIMIT) {
             // The buffer limit has been reached, data should be written to file

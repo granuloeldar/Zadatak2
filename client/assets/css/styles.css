@@ -15,3 +15,8 @@ body, input[text], button {
   color: #888; 
   font-family: Cambria, Georgia; 
 }
+
+.success-text {
+  color: green;
+  font-size: 24;
+}

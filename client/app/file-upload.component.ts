@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {NgForm, CORE_DIRECTIVES}    from '@angular/common';
 import {SocketService} from './services/SocketService';
 import {ISocketData} from './model/ISocketData';
@@ -24,6 +24,8 @@ export class FileUploadComponent {
 
   files: { [id: string]: IFileData } = {};
   uploadStarted: boolean = false;
+  statusMessage: string = "";
+  @ViewChild('fileInput') fileInputElement; 
 
   constructor(private socketService: SocketService) {
 
@@ -46,10 +48,13 @@ export class FileUploadComponent {
       .subscribe((data: ISocketData) => {
         if (this.files != null && Object.keys(this.files).length > 0 && this.files[data.Name]) {
           this.files[data.Name].Progress = 100;
-          delete this.files[data.Name];
-          if (Object.keys(this.files).length == 0) {
-            alert('File successfully uploaded!');
-            this.uploadStarted = false;
+          let completeCount: number = 0;
+          for(const item in this.files){
+            if (this.files[item].Progress == 100) completeCount++;
+          }
+          if (completeCount == Object.keys(this.files).length) {
+            this.statusMessage = "Files successfully uploaded!";
+            this.files = {};
           }
         }
       });
@@ -77,6 +82,12 @@ export class FileUploadComponent {
     for (let i: number = 0; i < fileList.length; i++) {
       this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
     }
+  }
+
+  resetForm(){
+    this.statusMessage = "";
+    this.uploadStarted = false;
+    this.fileInputElement.nativeElement.value = "";
   }
 
 }

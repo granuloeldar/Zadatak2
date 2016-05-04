@@ -12,7 +12,8 @@
     "compile-all-watch" : "npm run compile-server-watch && compile-client-watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server/app.js",
-    "compilation": "tsc -w"
+    "compilation": "tsc -w",
+    "postinstall": "typings install && npm run compile-all"
   },
   "repository": {
     "type": "git",
