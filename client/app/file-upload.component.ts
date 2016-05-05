@@ -29,6 +29,11 @@ export class FileUploadComponent {
 
   constructor(private socketService: SocketService) {
 
+    /**
+     * Server is requesting more data, get the new chunk of file and load it into
+     * its FileReader
+     * @type {[type]}
+     */
     socketService
       .progress("MoreData")
       .subscribe((data: ISocketData) => {
@@ -44,7 +49,11 @@ export class FileUploadComponent {
         }
 
       });
-
+    
+    /**
+     * Checks if all files have finished uploading and displays a message if they are
+     * @type {[type]}
+     */
     socketService
       .progress("Done")
       .subscribe((data: ISocketData) => {
@@ -61,6 +70,13 @@ export class FileUploadComponent {
         }
       });
 
+    /**
+     * Subscribing to the server response after canceling a file,
+     * checks if there are no files left after cancelling, if there are 
+     * no files it asks the user to upload other files, else it checks if all 
+     * other uploads have finished
+     * @type {[type]}
+     */
     socketService
       .progress("Cancelled")
       .subscribe((data) => {
@@ -68,6 +84,15 @@ export class FileUploadComponent {
         if (Object.keys(this.files).length == 0) {
           this.statusMessage = "Upload some other files?";
           this.files = {};
+        } else {
+          let completeCount: number = 0;
+          for (const item in this.files) {
+            if (this.files[item].Progress == 100) completeCount++;
+          }
+          if (completeCount == Object.keys(this.files).length) {
+            this.statusMessage = "Files successfully uploaded!";
+            this.files = {};
+          }
         }
       });
   }
@@ -115,7 +140,7 @@ export class FileUploadComponent {
   cancel(fileName: string) {
     this.socketService.emit('Cancel', { Name: fileName });
   }
-  
+
 
   /**
    * Preventing the component from opening te file in browser
@@ -136,7 +161,7 @@ export class FileUploadComponent {
   onDragEnter(event: DragEvent) {
     event.preventDefault();
   }
-  
+
   /**
    * Event on dropping the file in browser, adds the files
    * to the files dictionary for upload
@@ -146,14 +171,14 @@ export class FileUploadComponent {
   @HostListener('drop', ['$event'])
   onDrop(event: DragEvent) {
     event.preventDefault();
-    if(event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
-        const fileList: FileList = event.dataTransfer.files;
-        for (let i: number = 0; i < fileList.length; i++) {
-           this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
-        }
+    if (event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
+      const fileList: FileList = event.dataTransfer.files;
+      for (let i: number = 0; i < fileList.length; i++) {
+        this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
+      }
     }
   }
 
-  
+
 
 }
