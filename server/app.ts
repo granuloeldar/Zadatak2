@@ -14,6 +14,7 @@ app.use(express.static('./client'));
 app.use(express.static('./client/assets/css'));
 app.use(express.static('./client/assets/js'));
 app.use('/config_scripts', express.static('./client/assets/js/angular_config'));
+app.use('/dist', express.static('./client/app'));
 
 const files: { [id: string]: FileDescription; } = {};
 
