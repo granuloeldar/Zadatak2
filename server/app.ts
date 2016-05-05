@@ -74,44 +74,49 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
      * finished
      */
     socket.on('Upload', (data) => {
-        const name: string = data.Name;
-        files[name].Downloaded += data.Data.length;
-        files[name].Data += data.Data;
-        const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
-            Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
-        if (files[name].Paused) return;
-        if (files[name].Downloaded === files[name].FileSize) {
-            // The entire file has been sent, write it and copy it to server/files directory
-            fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
-                const inputStream: fs.ReadStream = fs.createReadStream('server/temp/' + name),
-                    outputStream: fs.WriteStream = fs.createWriteStream('server/files/' + name);
-                inputStream.pipe(outputStream);
 
-                // Upon closing of input stream, close and unlink the temporary file
-                inputStream.on('end', () => {
-                    fs.close(files[name].Handler, () => {
-                        fs.unlink('server/temp/' + name, (err: Error) => {
-                            if (err) {
-                                throw err;
-                            }
-                            console.log('File deleted!');
-                            // Emit a done event to alert the user 
-                            socket.emit('Done', { Path: 'server/files/' + name, Name: name });
+        try {
+            const name: string = data.Name;
+            files[name].Downloaded += data.Data.length;
+            files[name].Data += data.Data;
+            const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
+                Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
+            if (files[name].Paused) return;
+            if (files[name].Downloaded === files[name].FileSize) {
+                // The entire file has been sent, write it and copy it to server/files directory
+                fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
+                    const inputStream: fs.ReadStream = fs.createReadStream('server/temp/' + name),
+                        outputStream: fs.WriteStream = fs.createWriteStream('server/files/' + name);
+                    inputStream.pipe(outputStream);
+
+                    // Upon closing of input stream, close and unlink the temporary file
+                    inputStream.on('end', () => {
+                        fs.close(files[name].Handler, () => {
+                            fs.unlink('server/temp/' + name, (err: Error) => {
+                                if (err) {
+                                    throw err;
+                                }
+                                console.log('File deleted!');
+                                // Emit a done event to alert the user 
+                                socket.emit('Done', { Path: 'server/files/' + name, Name: name });
+                            });
                         });
                     });
-                });
 
-            });
-        } else if (files[name].Data.length > constants.BUFFER_LIMIT) {
-            // The buffer limit has been reached, data should be written to file
-            fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
-                files[name].Data = "";
-                // Request a new chunk of data
+                });
+            } else if (files[name].Data.length > constants.BUFFER_LIMIT) {
+                // The buffer limit has been reached, data should be written to file
+                fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
+                    files[name].Data = "";
+                    // Request a new chunk of data
+                    socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
+                });
+            } else {
+                // Buffer limit not reached, request new chunk of data
                 socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
-            });
-        } else {
-            // Buffer limit not reached, request new chunk of data
-            socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
+            }
+        } catch (exception) {
+            console.log("Exception happened " + exception);
         }
     });
 
@@ -131,6 +136,14 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
             // Emit a done event to alert the user 
             socket.emit('Cancelled', { Name: data.Name });
         });
+    });
+
+    socket.on('Save', (data) => {
+        for(const item in files) {
+            fs.write(files[item].Handler, files[item].Data, null, 'binary', () => {
+                files[item].Data = "";
+            });
+        }
     });
 
 });

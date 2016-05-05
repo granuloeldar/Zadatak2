@@ -40,7 +40,7 @@
 					<div class="text-center" [hidden]='statusMessage == ""'>
 						<button  type="button" id="reset_form_button" (click)="resetForm()" class="btn btn-success">Upload new files</button>
 					</div>
-					<div class="text-center" [hidden]='statusMessage != ""'>
+					<div class="text-center" [hidden]='statusMessage != "" || uploadStarted'>
 						<button  type="button" id="upload_button" (click)="startUpload()" class="btn btn-info">Upload files</button>
 					</div>
 				</div>

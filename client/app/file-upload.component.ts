@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, HostListener} from '@angular/core';
 import {NgForm, CORE_DIRECTIVES}    from '@angular/common';
 import {SocketService} from './services/SocketService';
 import {ISocketData} from './model/ISocketData';
@@ -115,5 +115,45 @@ export class FileUploadComponent {
   cancel(fileName: string) {
     this.socketService.emit('Cancel', { Name: fileName });
   }
+  
+
+  /**
+   * Preventing the component from opening te file in browser
+   * @param {[type]} 'dragover'
+   * @param {[type]} '$event'
+   */
+  @HostListener('dragover', ['$event'])
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  /**
+   * Preventing the component from opening the file in browser
+   * @param {[type]} 'dragenter'
+   * @param {[type]} '$event'
+   */
+  @HostListener('dragenter', ['$event'])
+  onDragEnter(event: DragEvent) {
+    event.preventDefault();
+  }
+  
+  /**
+   * Event on dropping the file in browser, adds the files
+   * to the files dictionary for upload
+   * @param {[type]} 'drop'
+   * @param {[type]} '$event'
+   */
+  @HostListener('drop', ['$event'])
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    if(event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
+        const fileList: FileList = event.dataTransfer.files;
+        for (let i: number = 0; i < fileList.length; i++) {
+           this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
+        }
+    }
+  }
+
+  
 
 }

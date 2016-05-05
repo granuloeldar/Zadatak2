@@ -20,3 +20,10 @@ body, input[text], button {
   color: green;
   font-size: 24;
 }
+
+.drop-zone-border {
+  width: 60%;
+  height: 20%;
+  border-color: black;
+  border-width: 2px;
+}

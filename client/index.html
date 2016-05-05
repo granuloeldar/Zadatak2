@@ -18,7 +18,18 @@
     </script>
   </head>
   <!-- 3. Display the application -->
-  <body>
+  <body id="dom_body">
   <app-begin></app-begin>
 </body>
+<script type="text/javascript">
+  document.getElementById('dom_body').addEventListener('dragover', function(e){
+      e.preventDefault();
+  });
+  document.getElementById('dom_body').addEventListener('dragenter', function(e){
+      e.preventDefault();
+  });
+  document.getElementById('dom_body').addEventListener('drop', function(e){
+      e.preventDefault();
+  });
+</script>
 </html>
