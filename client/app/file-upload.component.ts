@@ -81,8 +81,8 @@ export class FileUploadComponent {
     socketService
       .progress("Cancelled")
       .subscribe((data) => {
-        delete this.files[data.Name];
-        if (Object.keys(this.files).length == 0) {
+        this.removeFile(data.Name);
+        if (this.isDictEmpty()) {
           this.statusMessage = "Upload some other files?";
           this.files = {};
         } else {
@@ -117,7 +117,7 @@ export class FileUploadComponent {
   }
 
   startUpload() {
-    if (Object.keys(this.files).length > 0 && this.files != null) {
+    if (!this.isDictEmpty() && this.files != null) {
       // starting upload for every file selected by user
       for (const key in this.files) {
         this.socketService.emit('Start', { Name: this.files[key].File.name, Size: this.files[key].File.size, Restart: false });
@@ -160,6 +160,17 @@ export class FileUploadComponent {
   addFiles(fileList: FileList) {
     for (let i: number = 0; i < fileList.length; i++) {
       this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
+    }
+  }
+
+  isDictEmpty() : boolean {
+    return Object.keys(this.files).length == 0;
+  }
+  
+  removeFile(fileName: string) {
+    delete this.files[fileName];
+    if (this.isDictEmpty() && !this.uploadStarted) {
+      this.fileInputElement.nativeElement.value = "";
     }
   }
 

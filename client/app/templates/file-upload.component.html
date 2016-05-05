@@ -10,18 +10,21 @@
 				<ul style="list-style-type:none">
 					<li *ngFor="let file of files | values">
 						<div class="row">
-							<p>File name: {{file.File.name}}</p>
+						    <div style="display: inline-block;">
+						    	<p>File name: {{file.File.name}}</p>
+						    	<button type="button" [style.display]="!uploadStarted?'inherit':'none'" (click)="removeFile(file.File.name)" class="btn btn-danger">Remove file</button>
+						    </div>
 							<div [hidden]="!uploadStarted">
 								<progressbar [animate]="true" [value]="file.Progress" [type]="type">
-									<b>{{file.Progress | number:'.0-2'}}%</b>
+									<b>{{file.Progress | number:'.2-2'}}%</b>
 								</progressbar>
 								<div id="progress_container">
 									<div id="progress_bar">
-										{{file.Progress | number:'.0-2'}}
+										{{file.Progress | number:'.2-2'}}
 									</div>
 									<span id="percent">{{file.Progress | number:'.0-2'}} %</span>
 									<span id="uploaded">
-										Uploaded: {{(((file.Progress*100) * (file.File == null ? 1 : file.File.size)) / 10485760) | number}} MB
+										Uploaded: {{(((file.Progress*100) * (file.File == null ? 1 : file.File.size)) / 10485760) | number:'.2-2'}} MB
 									</span>
 								</div>
 							</div>
