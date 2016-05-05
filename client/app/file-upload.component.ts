@@ -1,4 +1,4 @@
-import {Component, ViewChild, HostListener} from '@angular/core';
+import {Component, ViewChild, HostListener, Renderer} from '@angular/core';
 import {NgForm, CORE_DIRECTIVES}    from '@angular/common';
 import {SocketService} from './services/SocketService';
 import {ISocketData} from './model/ISocketData';
@@ -26,8 +26,9 @@ export class FileUploadComponent {
   uploadStarted: boolean = false;
   statusMessage: string = "";
   @ViewChild('fileInput') fileInputElement;
+  onBodyDrop: Function;
 
-  constructor(private socketService: SocketService) {
+  constructor(private socketService: SocketService, renderer: Renderer) {
 
     /**
      * Server is requesting more data, get the new chunk of file and load it into
@@ -49,7 +50,7 @@ export class FileUploadComponent {
         }
 
       });
-    
+
     /**
      * Checks if all files have finished uploading and displays a message if they are
      * @type {[type]}
@@ -95,6 +96,24 @@ export class FileUploadComponent {
           }
         }
       });
+
+    /**
+     * Makes a global listener for the body of the document(whole document is a dropzone)
+     */
+    renderer.listenGlobal('body', 'dragenter', (event) => {
+      event.preventDefault();
+    });
+
+    renderer.listenGlobal('body', 'dragover', (event) => {
+      event.preventDefault();
+    });
+
+    renderer.listenGlobal('body', 'drop', (event) => {
+      event.preventDefault();
+         if (event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
+            this.addFiles(event.dataTransfer.files);
+        }
+    });
   }
 
   startUpload() {
@@ -115,10 +134,7 @@ export class FileUploadComponent {
    * @param {[type]} fileInput input control as a result of #fileInput in html template
    */
   onFileChosen(fileInput) {
-    const fileList: FileList = fileInput.files;
-    for (let i: number = 0; i < fileList.length; i++) {
-      this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
-    }
+    this.addFiles(fileInput.files);
   }
 
   resetForm() {
@@ -141,44 +157,10 @@ export class FileUploadComponent {
     this.socketService.emit('Cancel', { Name: fileName });
   }
 
-
-  /**
-   * Preventing the component from opening te file in browser
-   * @param {[type]} 'dragover'
-   * @param {[type]} '$event'
-   */
-  @HostListener('dragover', ['$event'])
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-  }
-
-  /**
-   * Preventing the component from opening the file in browser
-   * @param {[type]} 'dragenter'
-   * @param {[type]} '$event'
-   */
-  @HostListener('dragenter', ['$event'])
-  onDragEnter(event: DragEvent) {
-    event.preventDefault();
-  }
-
-  /**
-   * Event on dropping the file in browser, adds the files
-   * to the files dictionary for upload
-   * @param {[type]} 'drop'
-   * @param {[type]} '$event'
-   */
-  @HostListener('drop', ['$event'])
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    if (event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
-      const fileList: FileList = event.dataTransfer.files;
-      for (let i: number = 0; i < fileList.length; i++) {
-        this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
-      }
+  addFiles(fileList: FileList) {
+    for (let i: number = 0; i < fileList.length; i++) {
+      this.files[fileList[i].name] = new IFileData(fileList[i], 0.0, new FileReader(), this.socketService);
     }
   }
-
-
 
 }
