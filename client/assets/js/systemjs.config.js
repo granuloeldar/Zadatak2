@@ -3,9 +3,9 @@
   // map tells the System loader where to look for things
   var map = {
     'app':                        'app', // 'dist',
-    'rxjs':                       'modules/rxjs',
-    'angular2-in-memory-web-api': 'modules/angular2-in-memory-web-api',
-    '@angular':                   'modules/@angular'
+    'rxjs':                       'config_scripts/rxjs',
+    'angular2-in-memory-web-api': 'config_scripts/angular2-in-memory-web-api',
+    '@angular':                   'config_scripts/@angular'
   };
 
   // packages tells the System loader how to load when no filename and/or no extension
