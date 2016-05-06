@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {Observable} from "rxjs/Observable";
 import {Observer} from "rxjs/Observer";
-import {ISocketData} from "../model/ISocketData";
+import {SocketData} from "../model/SocketData";
 
 /**
  * An injectable service wrapped in observable that handles socket.io connections
@@ -15,21 +15,16 @@ export class SocketService {
         this.socket = io.connect("localhost:3000");
     }
 
-    public setCallbacks(onMoreData: Function, onDone: Function) {
-        this.socket.on('MoreData', onMoreData);
-        this.socket.on('Done', onDone);
-    }
-
     /**
      * Track Progress of upload
      *
      * @returns {any}
      */
-    public progress(namespace: string): Observable<ISocketData> {
+    public progress(namespace: string): Observable<SocketData> {
 
-        return Observable.create((observer: Observer<ISocketData>) => {
+        return Observable.create((observer: Observer<SocketData>) => {
 
-            this.socket.on(namespace, (data: ISocketData) => {
+            this.socket.on(namespace, (data: SocketData) => {
 
                 observer.next(data);
             });

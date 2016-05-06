@@ -1,8 +1,8 @@
-import {SocketService} from '../services/SocketService';
+import {SocketService} from '../services/socket-service.service';
 /**
  * Interface that contains a file object and current progress in downloading that file
  */
-export class IFileData {
+export class FileData {
     File: File;
     Progress: number;
     FileReader: FileReader;

@@ -29,9 +29,9 @@
 								</div>
 							</div>
 							<div style="display:inline-block;">
-								<button  type="button" [style.display]="(file.Paused || !uploadStarted)?'none':'inherit'" (click)="pause(file.File.name)" class="btn btn-info">Pause upload</button>
-								<button  type="button" [style.display]="file.Paused?'inherit':'none'" (click)="restart(file.File.name)" class="btn btn-info">Continue upload</button>
-								<button  type="button" [style.display]="uploadStarted?'inherit':'none'" (click)="cancel(file.File.name)" class="btn btn-danger">Cancel upload</button>
+								<button  type="button" [style.display]="((file.Paused) || !uploadStarted || file.Progress == 100)?'none':'inherit'" (click)="pause(file.File.name)" class="btn btn-info">Pause upload</button>
+								<button  type="button" [style.display]="(file.Paused && file.Progress != 100)?'inherit':'none'" (click)="restart(file.File.name)" class="btn btn-info">Continue upload</button>
+								<button  type="button" [style.display]="(uploadStarted && file.Progress != 100)?'inherit':'none'" (click)="cancel(file.File.name)" class="btn btn-danger">Cancel upload</button>
 							</div>
 						</div>
 					</li>
