@@ -3,18 +3,19 @@
 		<div id="upload_box" class="form-group">
 			<h2>Node.js file uploader</h2>
 			<span id="upload_area">
-				<div [hidden]="uploadStarted">
+				<div>
 					<label for="file_box">Choose a file: </label><input type="file" #fileInput class="form-control" (change)="onFileChosen(fileInput)" id="file_box" multiple>
 				</div>
-				<h2 [hidden]='uploadStarted'> Files to upload</h2>
+				<h2> Files to upload</h2>
+				<div style="width: 100%;height: 500px;overflow: auto;">
 				<ul style="list-style-type:none">
 					<li *ngFor="let file of files | values">
 						<div class="row">
 						    <div style="display: inline-block;">
 						    	<p>File name: {{file.File.name}}</p>
-						    	<button type="button" [style.display]="!uploadStarted?'inherit':'none'" (click)="removeFile(file.File.name)" class="btn btn-danger">Remove file</button>
 						    </div>
-							<div [hidden]="!uploadStarted">
+						    <p class="success-text" [hidden]="file.Progress != 100">Success!</p>
+							<div [hidden]="file.Progress == 100">
 								<progressbar [animate]="true" [value]="file.Progress" [type]="type">
 									<b>{{file.Progress | number:'.2-2'}}%</b>
 								</progressbar>
@@ -29,23 +30,13 @@
 								</div>
 							</div>
 							<div style="display:inline-block;">
-								<button  type="button" [style.display]="((file.Paused) || !uploadStarted || file.Progress == 100)?'none':'inherit'" (click)="pause(file.File.name)" class="btn btn-info">Pause upload</button>
+								<button  type="button" [style.display]="((file.Paused) || file.Progress == 100)?'none':'inherit'" (click)="pause(file.File.name)" class="btn btn-info">Pause upload</button>
 								<button  type="button" [style.display]="(file.Paused && file.Progress != 100)?'inherit':'none'" (click)="restart(file.File.name)" class="btn btn-info">Continue upload</button>
-								<button  type="button" [style.display]="(uploadStarted && file.Progress != 100)?'inherit':'none'" (click)="cancel(file.File.name)" class="btn btn-danger">Cancel upload</button>
+								<button  type="button" [style.display]="(file.Progress != 100)?'inherit':'none'" (click)="cancel(file.File.name)" class="btn btn-danger">Cancel upload</button>
 							</div>
 						</div>
 					</li>
 				</ul>
-				<div class="row text-center">
-					<p class="success-text">{{statusMessage}}</p>
-				</div>
-				<div class="row">
-					<div class="text-center" [hidden]='statusMessage == ""'>
-						<button  type="button" id="reset_form_button" (click)="resetForm()" class="btn btn-success">Upload new files</button>
-					</div>
-					<div class="text-center" [hidden]='statusMessage != "" || uploadStarted'>
-						<button  type="button" id="upload_button" (click)="startUpload()" class="btn btn-info">Upload files</button>
-					</div>
 				</div>
 			</span>
 		</div>

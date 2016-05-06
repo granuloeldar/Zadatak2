@@ -8,13 +8,12 @@ export class FileData {
     FileReader: FileReader;
     Paused: boolean;
 
-    constructor(file: File, progress: number, fileReader: FileReader, private socketService: SocketService) {
+    constructor(file: File, progress: number, private socketService: SocketService) {
         this.File = file;
         this.Progress = progress;
-        this.FileReader = fileReader;
+        this.FileReader = new FileReader();
         this.Paused = false;
         this.FileReader.onload = ((event: ProgressEvent) => {
-            console.log('UČITAVAM FAJL U FAJL READER POD IMENOM: ' + this.File.name);
             this.socketService.emit('Upload', { Name: this.File.name, Data: (event.target as FileReader).result });
         }).bind(this);
     }

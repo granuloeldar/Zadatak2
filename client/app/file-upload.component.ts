@@ -7,7 +7,7 @@ import {FileData} from './model/FileData';
 import {Progress} from './custom_components/progress.directive';
 import {Bar} from './custom_components/bar.component';
 import {Progressbar} from './custom_components/progressbar.component';
-import {CHUNK_SIZE} from './constants';
+import {CHUNK_SIZE, FILE_UPLOAD_ADDITIONAL_PROMPT, FILE_UPLOAD_SUCCESS_MESSAGE, NO_FILE_CHOSEN_ERROR} from './constants';
 import {DictionaryToArrayPipe} from './pipes/dictionary-to-array-pipe.pipe';
 
 /**
@@ -17,7 +17,7 @@ import {DictionaryToArrayPipe} from './pipes/dictionary-to-array-pipe.pipe';
 @Component({
   selector: 'file-upload',
   templateUrl: 'app/templates/file-upload.component.html',
-  providers: [SocketService, FileService],
+  providers: [SocketService],
   directives: [Progress, Bar, Progressbar, CORE_DIRECTIVES],
   pipes: [DictionaryToArrayPipe]
 })
@@ -25,7 +25,6 @@ export class FileUploadComponent {
 
   files: { [id: string]: FileData } = {};
   uploadStarted: boolean = false;
-  isWaitingForFiles: boolean = false;
   statusMessage: string = "";
   @ViewChild('fileInput') fileInputElement;
 
@@ -40,10 +39,13 @@ export class FileUploadComponent {
       .progress("MoreData")
       .subscribe((data: SocketData) => {
         const index: string = data.Name;
-        if (!this.fileService.isFilesEmpty() && this.files[index]) {
-          this.fileService.setFileProgress(index, data.Percent);
+        if (!this.isFilesEmpty() && this.files[index]) {
+          this.files[index].Progress = data.Percent;
+          const fileData: FileData = this.files[index];
           if (!this.files[index].Paused) {
-            this.fileService.readNewFile(index, data.Place);
+            const place = data.Place * CHUNK_SIZE,
+               newFile: Blob = fileData.File.slice(place, place + Math.min(CHUNK_SIZE, (fileData.File.size - place)));
+            fileData.FileReader.readAsBinaryString(newFile);
           }
         }
 
@@ -56,12 +58,8 @@ export class FileUploadComponent {
     socketService
       .progress("Done")
       .subscribe((data: SocketData) => {
-        if (!this.fileService.isFilesEmpty() && this.files[data.Name]) {
-          this.fileService.setFileProgress(data.Name, 100);
-          if (this.fileService.isUploadComplete()) {
-            this.fileService.clearFiles();
-            this.statusMessage = "Files successfully uploaded!";
-          }
+        if (!this.isFilesEmpty() && this.files[data.Name]) {
+          this.files[data.Name].Progress = 100;
         }
       });
 
@@ -75,16 +73,16 @@ export class FileUploadComponent {
     socketService
       .progress("Cancelled")
       .subscribe((data) => {
-        this.fileService.removeFile(data.Name);
-        if (this.fileService.isFilesEmpty()) {
-          this.statusMessage = "Upload some other files?";
-        } else {
-          if (this.fileService.isUploadComplete()) {
-            this.fileService.clearFiles();
-            this.statusMessage = "Files successfully uploaded!";
-          }
-        }
+        this.removeFile(data.Name);
+        if (this.isFilesEmpty()) {
+          this.statusMessage = FILE_UPLOAD_ADDITIONAL_PROMPT;
+        } 
       });
+
+    fileService.files$.subscribe((file) => {
+       this.files[file.name] = new FileData(file, 0.0, this.socketService);
+       this.socketService.emit('Start', { Name: file.name, Size: file.size });
+    });
 
     /**
      * Makes a global listener for the body of the document(whole document is a dropzone)
@@ -100,26 +98,10 @@ export class FileUploadComponent {
     renderer.listenGlobal('body', 'drop', (event) => {
       event.preventDefault();
       if (event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
-        this.fileService.addFiles(event.dataTransfer.files, this.socketService, this.uploadStarted);
+        this.fileService.addFiles(event.dataTransfer.files, this.socketService);
       }
     });
 
-  }
-
-  ngOnInit() {
-    this.fileService.files$.subscribe(latestFiles => {
-      this.files = latestFiles;
-    });
-  }
-
-  startUpload() {
-    if (!this.fileService.isFilesEmpty() && this.files != null) {
-      // starting upload for every file selected by user
-      this.fileService.startAllFileUploads();
-      this.uploadStarted = true;
-    } else {
-      alert('You have to choose a file!');
-    }
   }
 
   /**
@@ -128,32 +110,39 @@ export class FileUploadComponent {
    * @param {[type]} fileInput input control as a result of #fileInput in html template
    */
   onFileChosen(fileInput) {
-    this.fileService.addFiles(fileInput.files, this.socketService, false);
-  }
-
-  resetForm() {
-    this.statusMessage = "";
-    this.uploadStarted = false;
-    this.fileInputElement.nativeElement.value = "";
+    this.fileService.addFiles(fileInput.files, this.socketService);
   }
 
   pause(fileName: string) {
-    this.fileService.setFilePaused(fileName, true);
+    this.files[fileName].Paused = true;
+    this.socketService.emit('Pause', { Name: fileName });
   }
 
   restart(fileName: string) {
-    this.fileService.restartFileUpload(fileName);
+    this.files[fileName].Paused = false;
+    this.socketService.emit('Start', { Name: fileName, Size: this.files[fileName].File.size });
   }
 
   cancel(fileName: string) {
-    this.fileService.cancelFileUpload(fileName);
+    this.socketService.emit('Cancel', { Name: fileName });
   }
 
   removeFile(fileName: string) {
-    this.fileService.removeFile(fileName);
-    if (this.fileService.isFilesEmpty() && !this.uploadStarted) {
+    delete this.files[fileName];
+    if (this.isFilesEmpty() && !this.uploadStarted) {
       this.fileInputElement.nativeElement.value = "";
     }
   }
 
+  isFilesEmpty() {
+    return Object.keys(this.files).length == 0;
+  }
+
+  isUploadComplete() {
+    let completeCount: number = 0;
+    Object.keys(this.files).forEach((key) => {
+      if (this.files[key].Progress == 100) completeCount++;
+    });
+    return completeCount == Object.keys(this.files).length;
+  }
 }

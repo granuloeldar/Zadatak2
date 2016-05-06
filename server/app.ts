@@ -141,18 +141,13 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
     });
 
     socket.on('Save', (data) => {
-        for(const item in files) {
-            fs.write(files[item].Handler, files[item].Data, null, 'binary', () => {
-                files[item].Data = "";
+        Object.keys(files).forEach((key) => { 
+            fs.write(files[key].Handler, files[key].Data, null, 'binary', () => {
+                files[key].Data = "";
             });
-        }
+        });
     });
 
-});
-
-app.get('/api/hello', function(request: express.Request, response: express.Response) {
-    let dummy: string = '{"text": "dummy text", "text1" : "other text"}';
-    response.send(JSON.parse(dummy).text + " " + JSON.parse(dummy).text1);
 });
 
 server.listen(3000, () => {

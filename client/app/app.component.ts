@@ -11,11 +11,9 @@ import {FileService} from './services/file-service.service';
 })
 export class AppComponent { 
 	constructor(private socketService: SocketService, private fileService: FileService) {
-		window.onbeforeunload = (event) => {
+		window.onbeforeunload = ((event) => {
 			this.socketService.emit('Save', {});
-			if (!fileService.isFilesEmpty()) {
-			   return 'There are file uploads still in progress, are you sure you want to navigate away from this page?';
-			}
-		};
+			   return 'There may be file uploads still in progress, are you sure you want to navigate away from this page?';
+		}).bind(this);
 	}
 }
