@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {FileUploadComponent} from './file-upload.component'
 import {SocketService} from './services/socket-service.service';
 import {FileService} from './services/file-service.service';
+import {FILE_UPLOAD_IN_PROGRESS_WARNING} from './constants';
 
 @Component({
     selector: 'app-begin',
@@ -13,7 +14,9 @@ export class AppComponent {
 	constructor(private socketService: SocketService, private fileService: FileService) {
 		window.onbeforeunload = ((event) => {
 			this.socketService.emit('Save', {});
-			   return 'There may be file uploads still in progress, are you sure you want to navigate away from this page?';
+			if (this.fileService.isUploadInProgress) {
+				return FILE_UPLOAD_IN_PROGRESS_WARNING;
+			}
 		}).bind(this);
 	}
 }

@@ -12,6 +12,7 @@ export class FileService {
 
     files$: Observable<File>;
     private filesObserver: Observer<File>;
+    isUploadInProgress: boolean = false;
 
     constructor(private socketService: SocketService) {
         this.files$ = new Observable(observer => this.filesObserver = observer).share();

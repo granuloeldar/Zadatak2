@@ -61,6 +61,7 @@ export class FileUploadComponent {
         if (!this.isFilesEmpty() && this.files[data.Name]) {
           this.files[data.Name].Progress = 100;
         }
+        if (this.isUploadComplete()) this.fileService.isUploadInProgress = false; 
       });
 
     /**
@@ -74,14 +75,12 @@ export class FileUploadComponent {
       .progress("Cancelled")
       .subscribe((data) => {
         this.removeFile(data.Name);
-        if (this.isFilesEmpty()) {
-          this.statusMessage = FILE_UPLOAD_ADDITIONAL_PROMPT;
-        } 
       });
 
     fileService.files$.subscribe((file) => {
        this.files[file.name] = new FileData(file, 0.0, this.socketService);
        this.socketService.emit('Start', { Name: file.name, Size: file.size });
+       this.fileService.isUploadInProgress = true;
     });
 
     /**
@@ -99,9 +98,9 @@ export class FileUploadComponent {
       event.preventDefault();
       if (event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
         this.fileService.addFiles(event.dataTransfer.files, this.socketService);
+        this.fileService.isUploadInProgress = true;
       }
     });
-
   }
 
   /**
@@ -129,8 +128,9 @@ export class FileUploadComponent {
 
   removeFile(fileName: string) {
     delete this.files[fileName];
-    if (this.isFilesEmpty() && !this.uploadStarted) {
+    if (this.isFilesEmpty()) {
       this.fileInputElement.nativeElement.value = "";
+      this.fileService.isUploadInProgress = false;
     }
   }
 
@@ -145,4 +145,5 @@ export class FileUploadComponent {
     });
     return completeCount == Object.keys(this.files).length;
   }
+
 }
