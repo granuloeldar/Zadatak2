@@ -30,10 +30,10 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
 
         if (!data.Restart) {
             files[name] = {
-                FileSize: data.size,
-                Data: "",
-                Downloaded: 0.0,
-                Paused: false
+                fileSize: data.size,
+                data: "",
+                downloaded: 0.0,
+                paused: false
             };
         }
         /**
@@ -46,10 +46,10 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                     console.log(err);
                     console.log("File does not exist, creating file");
                 } else if (stats.isFile()) {
-                    files[name].Downloaded = stats.size;
+                    files[name].downloaded = stats.size;
                     place = stats.size / constants.CHUNK_SIZE;
-                    percent = (files[name].Downloaded / files[name].FileSize) * 100;
-                    files[name].Paused = false;
+                    percent = (files[name].downloaded / files[name].fileSize) * 100;
+                    files[name].paused = false;
                 }
             });
         } catch (err) {
@@ -64,7 +64,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
             if (err) {
                 console.log(err);
             } else {
-                files[name].Handler = fd;
+                files[name].handler = fd;
                 socket.emit('MoreData', { place: place, percent: percent, name: name });
             }
         });
@@ -79,21 +79,21 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
 
         try {
             const name: string = data.name;
-            files[name].Downloaded += data.data.length;
-            files[name].Data += data.data;
-            const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
-                Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
-            if (files[name].Paused) return;
-            if (files[name].Downloaded === files[name].FileSize) {
+            files[name].downloaded += data.data.length;
+            files[name].data += data.data;
+            const Place: Number = files[name].downloaded / constants.CHUNK_SIZE,
+                Percent: Number = (files[name].downloaded / files[name].fileSize) * 100;
+            if (files[name].paused) return;
+            if (files[name].downloaded === files[name].fileSize) {
                 // The entire file has been sent, write it and copy it to server/files directory
-                fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
+                fs.write(files[name].handler, files[name].data, null, 'binary', () => {
                     const inputStream: fs.ReadStream = fs.createReadStream('server/temp/' + name),
                         outputStream: fs.WriteStream = fs.createWriteStream('server/files/' + name);
                     inputStream.pipe(outputStream);
 
                     // Upon closing of input stream, close and unlink the temporary file
                     inputStream.on('end', () => {
-                        fs.close(files[name].Handler, () => {
+                        fs.close(files[name].handler, () => {
                             fs.unlink('server/temp/' + name, (err: Error) => {
                                 if (err) {
                                     throw err;
@@ -106,10 +106,10 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                     });
 
                 });
-            } else if (files[name].Data.length > constants.BUFFER_LIMIT) {
+            } else if (files[name].data.length > constants.BUFFER_LIMIT) {
                 // The buffer limit has been reached, data should be written to file
-                fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
-                    files[name].Data = "";
+                fs.write(files[name].handler, files[name].data, null, 'binary', () => {
+                    files[name].data = "";
                     // Request a new chunk of data
                     socket.emit('MoreData', { place: Place, percent: Percent, name: name });
                 });
@@ -123,9 +123,9 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
     });
 
     socket.on('Pause', (data) => {
-        files[data.name].Paused = true;
-        fs.write(files[data.name].Handler, files[data.name].Data, null, 'binary', () => {
-            files[data.name].Data = "";
+        files[data.name].paused = true;
+        fs.write(files[data.name].handler, files[data.name].data, null, 'binary', () => {
+            files[data.name].data = "";
         });
     });
 
@@ -142,8 +142,8 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
 
     socket.on('Save', (data) => {
         Object.keys(files).forEach((key) => { 
-            fs.write(files[key].Handler, files[key].Data, null, 'binary', () => {
-                files[key].Data = "";
+            fs.write(files[key].handler, files[key].data, null, 'binary', () => {
+                files[key].data = "";
             });
         });
     });

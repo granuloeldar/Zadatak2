@@ -1,7 +1,8 @@
-import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {Observer} from "rxjs/Observer";
-import {SocketData} from "../model/SocketData";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs/Observable";
+import { Observer } from "rxjs/Observer";
+
+import { SocketData } from "../model/SocketData";
 
 /**
  * An injectable service wrapped in observable that handles socket.io connections

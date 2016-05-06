@@ -1,14 +1,14 @@
-import {Component, ViewChild, HostListener, Renderer} from '@angular/core';
-import {NgForm, CORE_DIRECTIVES}    from '@angular/common';
-import {SocketService} from './services/socket-service.service';
-import {FileService} from './services/file-service.service';
-import {SocketData} from './model/SocketData';
-import {FileData} from './model/FileData';
-import {Progress} from './custom_components/progress.directive';
-import {Bar} from './custom_components/bar.component';
-import {Progressbar} from './custom_components/progressbar.component';
-import {CHUNK_SIZE, FILE_UPLOAD_ADDITIONAL_PROMPT, FILE_UPLOAD_SUCCESS_MESSAGE, NO_FILE_CHOSEN_ERROR} from './constants';
-import {DictionaryToArrayPipe} from './pipes/dictionary-to-array.pipe';
+import { Component, ViewChild, HostListener, Renderer } from '@angular/core';
+
+import { SocketService } from './services/socket-service.service';
+import { FileService } from './services/file-service.service';
+import { SocketData } from './model/SocketData';
+import { FileData } from './model/FileData';
+import { Progress } from './custom_components/progress.directive';
+import { Bar } from './custom_components/bar.component';
+import { Progressbar } from './custom_components/progressbar.component';
+import { CHUNK_SIZE, FILE_UPLOAD_ADDITIONAL_PROMPT, FILE_UPLOAD_SUCCESS_MESSAGE, NO_FILE_CHOSEN_ERROR } from './constants';
+import { DictionaryToArrayPipe } from './pipes/dictionary-to-array.pipe';
 
 /**
  * Component that handles file upload via socket.io,
@@ -18,7 +18,7 @@ import {DictionaryToArrayPipe} from './pipes/dictionary-to-array.pipe';
   selector: 'file-upload',
   templateUrl: 'app/templates/file-upload.component.html',
   providers: [SocketService],
-  directives: [Progress, Bar, Progressbar, CORE_DIRECTIVES],
+  directives: [Progress, Bar, Progressbar],
   pipes: [DictionaryToArrayPipe]
 })
 export class FileUploadComponent {
@@ -130,6 +130,8 @@ export class FileUploadComponent {
     delete this.files[fileName];
     if (this.isFilesEmpty()) {
       this.fileInputElement.nativeElement.value = "";
+      this.fileService.isUploadInProgress = false;
+    } else if (this.isUploadComplete()) {
       this.fileService.isUploadInProgress = false;
     }
   }

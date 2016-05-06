@@ -1,8 +1,9 @@
-import {Component} from '@angular/core';
-import {FileUploadComponent} from './file-upload.component'
-import {SocketService} from './services/socket-service.service';
-import {FileService} from './services/file-service.service';
-import {FILE_UPLOAD_IN_PROGRESS_WARNING} from './constants';
+import { Component } from '@angular/core';
+
+import { FileUploadComponent } from './file-upload.component'
+import { SocketService } from './services/socket-service.service';
+import { FileService } from './services/file-service.service';
+import { FILE_UPLOAD_IN_PROGRESS_WARNING } from './constants';
 
 @Component({
     selector: 'app-begin',

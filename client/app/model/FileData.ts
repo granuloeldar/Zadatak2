@@ -1,4 +1,4 @@
-import {SocketService} from '../services/socket-service.service';
+import { SocketService } from '../services/socket-service.service';
 /**
  * Interface that contains a file object and current progress in downloading that file
  */
