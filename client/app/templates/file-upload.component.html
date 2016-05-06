@@ -9,30 +9,30 @@
 				<h2> Files to upload</h2>
 				<div style="width: 100%;height: 500px;overflow: auto;">
 				<ul style="list-style-type:none">
-					<li *ngFor="let file of files | values">
+					<li *ngFor="let fileData of files | values">
 						<div class="row">
 						    <div style="display: inline-block;">
-						    	<p>File name: {{file.File.name}}</p>
+						    	<p>File name: {{fileData.file.name}}</p>
 						    </div>
-						    <p class="success-text" [hidden]="file.Progress != 100">Success!</p>
-							<div [hidden]="file.Progress == 100">
-								<progressbar [animate]="true" [value]="file.Progress" [type]="type">
-									<b>{{file.Progress | number:'.2-2'}}%</b>
+						    <p class="success-text" [hidden]="fileData.progress != 100">Success!</p>
+							<div [hidden]="fileData.progress == 100">
+								<progressbar [animate]="true" [value]="fileData.progress" [type]="type">
+									<b>{{fileData.progress | number:'.2-2'}}%</b>
 								</progressbar>
 								<div id="progress_container">
 									<div id="progress_bar">
-										{{file.Progress | number:'.2-2'}}
+										{{fileData.progress | number:'.2-2'}}
 									</div>
-									<span id="percent">{{file.Progress | number:'.0-2'}} %</span>
+									<span id="percent">{{fileData.progress | number:'.0-2'}} %</span>
 									<span id="uploaded">
-										Uploaded: {{(((file.Progress*100) * (file.File == null ? 1 : file.File.size)) / 10485760) | number:'.2-2'}} MB
+										Uploaded: {{(((fileData.progress*100) * (fileData.file == null ? 1 : fileData.file.size)) / 10485760) | number:'.2-2'}} MB
 									</span>
 								</div>
 							</div>
 							<div style="display:inline-block;">
-								<button  type="button" [style.display]="((file.Paused) || file.Progress == 100)?'none':'inherit'" (click)="pause(file.File.name)" class="btn btn-info">Pause upload</button>
-								<button  type="button" [style.display]="(file.Paused && file.Progress != 100)?'inherit':'none'" (click)="restart(file.File.name)" class="btn btn-info">Continue upload</button>
-								<button  type="button" [style.display]="(file.Progress != 100)?'inherit':'none'" (click)="cancel(file.File.name)" class="btn btn-danger">Cancel upload</button>
+								<button  type="button" [style.display]="((fileData.paused) || fileData.progress == 100)?'none':'inherit'" (click)="pause(fileData.file.name)" class="btn btn-info">Pause upload</button>
+								<button  type="button" [style.display]="(fileData.paused && fileData.progress != 100)?'inherit':'none'" (click)="restart(fileData.file.name)" class="btn btn-info">Continue upload</button>
+								<button  type="button" [style.display]="(fileData.progress != 100)?'inherit':'none'" (click)="cancel(fileData.file.name)" class="btn btn-danger">Cancel upload</button>
 							</div>
 						</div>
 					</li>

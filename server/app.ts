@@ -24,13 +24,13 @@ const files: { [id: string]: FileDescription; } = {};
 io.sockets.on('connection', (socket: SocketIO.Socket) => {
     socket.on('Start', (data) => {
         console.log("Upload started...");
-        const name: string = data.Name;
+        const name: string = data.name;
         let place: number = 0;
         let percent: number = 0;
 
         if (!data.Restart) {
             files[name] = {
-                FileSize: data.Size,
+                FileSize: data.size,
                 Data: "",
                 Downloaded: 0.0,
                 Paused: false
@@ -65,7 +65,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                 console.log(err);
             } else {
                 files[name].Handler = fd;
-                socket.emit('MoreData', { Place: place, Percent: percent, Name: name });
+                socket.emit('MoreData', { place: place, percent: percent, name: name });
             }
         });
     });
@@ -78,9 +78,9 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
     socket.on('Upload', (data) => {
 
         try {
-            const name: string = data.Name;
-            files[name].Downloaded += data.Data.length;
-            files[name].Data += data.Data;
+            const name: string = data.name;
+            files[name].Downloaded += data.data.length;
+            files[name].Data += data.data;
             const Place: Number = files[name].Downloaded / constants.CHUNK_SIZE,
                 Percent: Number = (files[name].Downloaded / files[name].FileSize) * 100;
             if (files[name].Paused) return;
@@ -100,7 +100,7 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                                 }
                                 console.log('File deleted!');
                                 // Emit a done event to alert the user 
-                                socket.emit('Done', { Path: 'server/files/' + name, Name: name });
+                                socket.emit('Done', { path: 'server/files/' + name, name: name });
                             });
                         });
                     });
@@ -111,11 +111,11 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
                 fs.write(files[name].Handler, files[name].Data, null, 'binary', () => {
                     files[name].Data = "";
                     // Request a new chunk of data
-                    socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
+                    socket.emit('MoreData', { place: Place, percent: Percent, name: name });
                 });
             } else {
                 // Buffer limit not reached, request new chunk of data
-                socket.emit('MoreData', { Place: Place, Percent: Percent, Name: name });
+                socket.emit('MoreData', { place: Place, percent: Percent, name: name });
             }
         } catch (exception) {
             console.log("Exception happened " + exception);
@@ -123,20 +123,20 @@ io.sockets.on('connection', (socket: SocketIO.Socket) => {
     });
 
     socket.on('Pause', (data) => {
-        files[data.Name].Paused = true;
-        fs.write(files[data.Name].Handler, files[data.Name].Data, null, 'binary', () => {
-            files[data.Name].Data = "";
+        files[data.name].Paused = true;
+        fs.write(files[data.name].Handler, files[data.name].Data, null, 'binary', () => {
+            files[data.name].Data = "";
         });
     });
 
     socket.on('Cancel', (data) => {
-        fs.unlink('server/temp/' + data.Name, (err: Error) => {
+        fs.unlink('server/temp/' + data.name, (err: Error) => {
             if (err) {
                 throw err;
             }
             console.log('File deleted due to cancel!');
             // Emit a done event to alert the user 
-            socket.emit('Cancelled', { Name: data.Name });
+            socket.emit('Cancelled', { name: data.name });
         });
     });
 

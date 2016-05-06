@@ -8,7 +8,7 @@ import {Progress} from './custom_components/progress.directive';
 import {Bar} from './custom_components/bar.component';
 import {Progressbar} from './custom_components/progressbar.component';
 import {CHUNK_SIZE, FILE_UPLOAD_ADDITIONAL_PROMPT, FILE_UPLOAD_SUCCESS_MESSAGE, NO_FILE_CHOSEN_ERROR} from './constants';
-import {DictionaryToArrayPipe} from './pipes/dictionary-to-array-pipe.pipe';
+import {DictionaryToArrayPipe} from './pipes/dictionary-to-array.pipe';
 
 /**
  * Component that handles file upload via socket.io,
@@ -38,14 +38,14 @@ export class FileUploadComponent {
     socketService
       .progress("MoreData")
       .subscribe((data: SocketData) => {
-        const index: string = data.Name;
+        const index: string = data.name;
         if (!this.isFilesEmpty() && this.files[index]) {
-          this.files[index].Progress = data.Percent;
+          this.files[index].progress = data.percent;
           const fileData: FileData = this.files[index];
-          if (!this.files[index].Paused) {
-            const place = data.Place * CHUNK_SIZE,
-               newFile: Blob = fileData.File.slice(place, place + Math.min(CHUNK_SIZE, (fileData.File.size - place)));
-            fileData.FileReader.readAsBinaryString(newFile);
+          if (!this.files[index].paused) {
+            const place = data.place * CHUNK_SIZE,
+               newFile: Blob = fileData.file.slice(place, place + Math.min(CHUNK_SIZE, (fileData.file.size - place)));
+            fileData.fileReader.readAsBinaryString(newFile);
           }
         }
 
@@ -58,8 +58,8 @@ export class FileUploadComponent {
     socketService
       .progress("Done")
       .subscribe((data: SocketData) => {
-        if (!this.isFilesEmpty() && this.files[data.Name]) {
-          this.files[data.Name].Progress = 100;
+        if (!this.isFilesEmpty() && this.files[data.name]) {
+          this.files[data.name].progress = 100;
         }
         if (this.isUploadComplete()) this.fileService.isUploadInProgress = false; 
       });
@@ -74,12 +74,12 @@ export class FileUploadComponent {
     socketService
       .progress("Cancelled")
       .subscribe((data) => {
-        this.removeFile(data.Name);
+        this.removeFile(data.name);
       });
 
     fileService.files$.subscribe((file) => {
        this.files[file.name] = new FileData(file, 0.0, this.socketService);
-       this.socketService.emit('Start', { Name: file.name, Size: file.size });
+       this.socketService.emit('Start', { name: file.name, size: file.size });
        this.fileService.isUploadInProgress = true;
     });
 
@@ -113,17 +113,17 @@ export class FileUploadComponent {
   }
 
   pause(fileName: string) {
-    this.files[fileName].Paused = true;
-    this.socketService.emit('Pause', { Name: fileName });
+    this.files[fileName].paused = true;
+    this.socketService.emit('Pause', { name: fileName });
   }
 
   restart(fileName: string) {
-    this.files[fileName].Paused = false;
-    this.socketService.emit('Start', { Name: fileName, Size: this.files[fileName].File.size });
+    this.files[fileName].paused = false;
+    this.socketService.emit('Start', { name: fileName, size: this.files[fileName].file.size });
   }
 
   cancel(fileName: string) {
-    this.socketService.emit('Cancel', { Name: fileName });
+    this.socketService.emit('Cancel', { name: fileName });
   }
 
   removeFile(fileName: string) {
@@ -141,7 +141,7 @@ export class FileUploadComponent {
   isUploadComplete() {
     let completeCount: number = 0;
     Object.keys(this.files).forEach((key) => {
-      if (this.files[key].Progress == 100) completeCount++;
+      if (this.files[key].progress == 100) completeCount++;
     });
     return completeCount == Object.keys(this.files).length;
   }
