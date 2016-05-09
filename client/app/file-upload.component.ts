@@ -9,6 +9,7 @@ import { Bar } from './custom_components/bar.component';
 import { Progressbar } from './custom_components/progressbar.component';
 import { CHUNK_SIZE, FILE_UPLOAD_ADDITIONAL_PROMPT, FILE_UPLOAD_SUCCESS_MESSAGE, NO_FILE_CHOSEN_ERROR } from './constants';
 import { DictionaryToArrayPipe } from './pipes/dictionary-to-array.pipe';
+import { ReverseArrayPipe } from './pipes/reverse-array.pipe';
 
 /**
  * Component that handles file upload via socket.io,
@@ -19,7 +20,7 @@ import { DictionaryToArrayPipe } from './pipes/dictionary-to-array.pipe';
   templateUrl: 'app/templates/file-upload.component.html',
   providers: [SocketService],
   directives: [Progress, Bar, Progressbar],
-  pipes: [DictionaryToArrayPipe]
+  pipes: [DictionaryToArrayPipe, ReverseArrayPipe]
 })
 export class FileUploadComponent {
 
@@ -27,6 +28,11 @@ export class FileUploadComponent {
   uploadStarted: boolean = false;
   statusMessage: string = "";
   @ViewChild('fileInput') fileInputElement;
+
+  // Function attributes to remove global listeners onDestroy
+  onDragEnter: Function;
+  onDrop: Function;
+  onDragOver: Function;
 
   constructor(private socketService: SocketService, renderer: Renderer, private fileService: FileService) {
 
@@ -86,19 +92,20 @@ export class FileUploadComponent {
     /**
      * Makes a global listener for the body of the document(whole document is a dropzone)
      */
-    renderer.listenGlobal('body', 'dragenter', (event) => {
+    this.onDragEnter = renderer.listenGlobal('body', 'dragenter', (event) => {
       event.preventDefault();
     });
 
-    renderer.listenGlobal('body', 'dragover', (event) => {
+    this.onDragOver = renderer.listenGlobal('body', 'dragover', (event) => {
       event.preventDefault();
     });
 
-    renderer.listenGlobal('body', 'drop', (event) => {
+    this.onDrop = renderer.listenGlobal('body', 'drop', (event) => {
       event.preventDefault();
       if (event.dataTransfer != null && event.dataTransfer.files != null && event.dataTransfer.files.length != 0) {
         this.fileService.addFiles(event.dataTransfer.files, this.socketService);
         this.fileService.isUploadInProgress = true;
+        this.fileInputElement.nativeElement.value = "";
       }
     });
   }
@@ -110,6 +117,7 @@ export class FileUploadComponent {
    */
   onFileChosen(fileInput) {
     this.fileService.addFiles(fileInput.files, this.socketService);
+    this.fileInputElement.nativeElement.value = "";
   }
 
   pause(fileName: string) {
@@ -146,6 +154,14 @@ export class FileUploadComponent {
       if (this.files[key].progress == 100) completeCount++;
     });
     return completeCount == Object.keys(this.files).length;
+  }
+
+  // Remove global event listeners
+
+  ngOnDestroy() {
+      this.onDragEnter();
+      this.onDrop();
+      this.onDragOver();
   }
 
 }
