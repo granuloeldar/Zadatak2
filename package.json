@@ -13,7 +13,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server/app.js",
     "compilation": "tsc -w",
-    "postinstall": "typings install && npm run compile-all"
+    "postinstall": "typings install && npm run compile-all",
+    "bundle": "node bundle.js",
+    "bundle:prod": "node bundle.js --prod"
   },
   "repository": {
     "type": "git",
